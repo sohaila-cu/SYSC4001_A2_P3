@@ -2,10 +2,12 @@
  *
  * @file interrupts.cpp
  * @author Sasisekhar Govind
+ * @author Sohaila Haroun
+ * @author Zaineb Ben Hmida
  *
  */
 
-#include<interrupts.hpp>
+#include"interrupts.hpp"
 
 std::tuple<std::string, std::string, int> simulate_trace(std::vector<std::string> trace_file, int time, std::vector<std::string> vectors, std::vector<int> delays, std::vector<external_file> external_files, PCB current, std::vector<PCB> wait_queue) {
 
@@ -50,13 +52,15 @@ std::tuple<std::string, std::string, int> simulate_trace(std::vector<std::string
 
             ///////////////////////////////////////////////////////////////////////////////////////////
             //Add your FORK output here
-
-
-
+            execution += std::to_string(current_time) + ", "+std::to_string(duration_intr)+", cloning the PCB\n";
+            current_time+=duration_intr;
+            execution += std::to_string(current_time) + ", 0, scheduler called\n";
+            execution += std::to_string(current_time) + ", 1, IRET\n";
+            current_time++;
             ///////////////////////////////////////////////////////////////////////////////////////////
 
             //The following loop helps you do 2 things:
-            // * Collect the trace of the chile (and only the child, skip parent)
+            // * Collect the trace of the child (and only the child, skip parent)
             // * Get the index of where the parent is supposed to start executing from
             std::vector<std::string> child_trace;
             bool skip = true;
@@ -91,8 +95,38 @@ std::tuple<std::string, std::string, int> simulate_trace(std::vector<std::string
 
             ///////////////////////////////////////////////////////////////////////////////////////////
             //With the child's trace, run the child (HINT: think recursion)
+            PCB parent = current;
+            PCB child(current.PID+1, current.PID, current.program_name, 
+                current.size, -1);
+            allocate_memory(&child); //come back for error handling
 
+            wait_queue.push_back(parent);
+            current = child;
 
+            //system status
+            system_status+= "time: " + std::to_string(current_time)+ "; current trace: FORK, " +std::to_string(duration_intr)+ "\n";
+            system_status += print_PCB(current, wait_queue)+ "\n";
+
+            auto [child_execution, child_system_status, child_time] = simulate_trace(
+                                            child_trace, 
+                                            current_time, 
+                                            vectors, 
+                                            delays,
+                                            external_files, 
+                                            child, 
+                                            wait_queue);
+
+            execution+=child_execution;
+            system_status+=child_system_status;
+            current_time=child_time; //+=?
+
+            //restore parent as current
+            if (!wait_queue.empty()){
+                if(wait_queue.back().PID == parent.PID){
+                    wait_queue.pop_back();
+                }
+            }
+            current = parent;
 
             ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -104,9 +138,20 @@ std::tuple<std::string, std::string, int> simulate_trace(std::vector<std::string
 
             ///////////////////////////////////////////////////////////////////////////////////////////
             //Add your EXEC output here
-
-
-
+            
+            //execution
+            unsigned int child_size = get_size(program_name, external_files);
+            execution += std::to_string(current_time) + ", "+std::to_string(duration_intr)+", Program is "+ std::to_string(child_size) +" Mb large\n";
+            current_time+=duration_intr;
+            execution += std::to_string(current_time) + ", "+std::to_string(child_size*15)+", loading program into memory\n";
+            current_time+=child_size*15;
+            execution += std::to_string(current_time) + ", 3, marking partition as occupied\n";
+            current_time+=3;
+            execution += std::to_string(current_time) + ", 6, updating PCB\n";
+            current_time+=6;
+            execution += std::to_string(current_time) + ", 0, scheduler called\n";
+            execution += std::to_string(current_time) + ", 1, IRET\n";
+            current_time++;
             ///////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -120,9 +165,27 @@ std::tuple<std::string, std::string, int> simulate_trace(std::vector<std::string
 
             ///////////////////////////////////////////////////////////////////////////////////////////
             //With the exec's trace (i.e. trace of external program), run the exec (HINT: think recursion)
+            
+            child_size = get_size(program_name, external_files);
+            current.program_name = program_name;
+            free_memory(&current);
+            current.size = child_size;
+            allocate_memory(&current);
+            //system status
+            system_status+= "time: " + std::to_string(current_time)+ "; current trace: EXEC "+ program_name+", " +std::to_string(duration_intr)+ "\n";
+            system_status += print_PCB(current, wait_queue) + "\n";
+            auto [exec_execution, exec_system_status, exec_time] = simulate_trace(
+                                            exec_traces, 
+                                            current_time, 
+                                            vectors, 
+                                            delays,
+                                            external_files, 
+                                            current, 
+                                            wait_queue);
 
-
-
+            execution+= exec_execution;
+            system_status+= exec_system_status;
+            current_time= exec_time;
             ///////////////////////////////////////////////////////////////////////////////////////////
 
             break; //Why is this important? (answer in report)

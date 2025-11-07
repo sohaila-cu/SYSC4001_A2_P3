@@ -159,7 +159,7 @@ std::tuple<std::vector<std::string>, std::vector<int>, std::vector<external_file
     return {vectors, delays, external_files};
 }
 
-//Parces each trace and returns a tuple: {Tace activity, duration or interrupt number, program name (if applicable)}
+//Parces each trace and returns a tuple: {Trace activity, duration or interrupt number, program name (if applicable)}
 std::tuple<std::string, int, std::string> parse_trace(std::string trace) {
     //split line by ','
     auto parts = split_delim(trace, ",");
