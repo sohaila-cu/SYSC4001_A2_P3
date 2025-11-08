@@ -1,0 +1,70 @@
+0, 1, switch to kernel mode
+1, 10, context saved
+11, 1, find vector 2 in memory position 0x0004
+12, 1, load address 0X0695 into the PC
+13, 20, cloning the PCB
+33, 0, scheduler called
+33, 1, IRET
+34, 1, switch to kernel mode
+35, 10, context saved
+45, 1, find vector 3 in memory position 0x0006
+46, 1, load address 0X042B into the PC
+47, 50, Program is 10 Mb large
+97, 150, loading program into memory
+247, 3, marking partition as occupied
+250, 6, updating PCB
+256, 0, scheduler called
+256, 1, IRET
+257, 1, switch to kernel mode
+258, 10, context saved
+268, 1, find vector 2 in memory position 0x0004
+269, 1, load address 0X0695 into the PC
+270, 15, cloning the PCB
+285, 0, scheduler called
+285, 1, IRET
+286, 1, switch to kernel mode
+287, 10, context saved
+297, 1, find vector 3 in memory position 0x0006
+298, 1, load address 0X042B into the PC
+299, 33, Program is 15 Mb large
+332, 225, loading program into memory
+557, 3, marking partition as occupied
+560, 6, updating PCB
+566, 0, scheduler called
+566, 1, IRET
+567, 53, CPU Burst
+620, 1, switch to kernel mode
+621, 10, context saved
+631, 1, find vector 3 in memory position 0x0006
+632, 1, load address 0X042B into the PC
+633, 33, Program is 15 Mb large
+666, 225, loading program into memory
+891, 3, marking partition as occupied
+894, 6, updating PCB
+900, 0, scheduler called
+900, 1, IRET
+901, 53, CPU Burst
+954, 1, switch to kernel mode
+955, 10, context saved
+965, 1, find vector 3 in memory position 0x0006
+966, 1, load address 0X042B into the PC
+967, 60, Program is 10 Mb large
+1027, 150, loading program into memory
+1177, 3, marking partition as occupied
+1180, 6, updating PCB
+1186, 0, scheduler called
+1186, 1, IRET
+1187, 50, CPU Burst
+1237, 1, switch to kernel mode
+1238, 10, context saved
+1248, 1, find vector 6 in memory position 0x000C
+1249, 1, load address 0X0639 into the PC
+1250, 265, SYSCALL ISR (ADD STEPS HERE)
+1515, 1, IRET
+1516, 15, CPU Burst
+1531, 1, switch to kernel mode
+1532, 10, context saved
+1542, 1, find vector 6 in memory position 0x000C
+1543, 1, load address 0X0639 into the PC
+1544, 265, ENDIO ISR(ADD STEPS HERE)
+1809, 1, IRET

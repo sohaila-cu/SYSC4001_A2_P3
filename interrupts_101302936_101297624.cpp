@@ -98,8 +98,12 @@ std::tuple<std::string, std::string, int> simulate_trace(std::vector<std::string
             PCB parent = current;
             PCB child(current.PID+1, current.PID, current.program_name, 
                 current.size, -1);
-            allocate_memory(&child); //come back for error handling
-
+            //allocate_memory(&child); //come back for error handling
+            if(!allocate_memory(&child)) {
+                std::cerr << "ERROR! Memory allocation failed for child!" << std::endl;
+                execution +=std::to_string(current_time) + ", 0, ERROR! Memory allocation failed for child!\n";
+                continue;
+            }
             wait_queue.push_back(parent);
             current = child;
 
@@ -118,7 +122,7 @@ std::tuple<std::string, std::string, int> simulate_trace(std::vector<std::string
 
             execution+=child_execution;
             system_status+=child_system_status;
-            current_time=child_time; //+=?
+            current_time=child_time; 
 
             //restore parent as current
             if (!wait_queue.empty()){
@@ -170,7 +174,12 @@ std::tuple<std::string, std::string, int> simulate_trace(std::vector<std::string
             current.program_name = program_name;
             free_memory(&current);
             current.size = child_size;
-            allocate_memory(&current);
+            //allocate_memory(&current);
+            if(!allocate_memory(&current)) {
+                std::cerr << "ERROR! Memory allocation failed!" << std::endl;
+                execution +=std::to_string(current_time) + ", 0, ERROR! Memory allocation failed!\n";
+                continue;
+            }
             //system status
             system_status+= "time: " + std::to_string(current_time)+ "; current trace: EXEC "+ program_name+", " +std::to_string(duration_intr)+ "\n";
             system_status += print_PCB(current, wait_queue) + "\n";
@@ -192,7 +201,7 @@ std::tuple<std::string, std::string, int> simulate_trace(std::vector<std::string
 
         }
     }
-
+    free_memory(&current);
     return {execution, system_status, current_time};
 }
 
